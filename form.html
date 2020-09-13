@@ -105,6 +105,7 @@
                     //Verifica se o nome já está cadastrado, se não estiver sugere um nome cadastrável
                     if (this.nomes.some(nomes => nomes.name.toUpperCase() === this.usuario.nome.toUpperCase())) {
                         this.mensagem = `Este nome de usuário já está sendo utilizado, que tal ${this.usuario.nome}69?`
+                        this.usuario.nome = this.usuario.nome+'69'
                     } else {
                         this.mensagem = 'Nome liberado para cadastro'
                         axios.post(url, this.usuario)
