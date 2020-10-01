@@ -1,71 +1,87 @@
+<!DOCTYPE html>
 <head>
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
         integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+   <!-- Login CSS -->     
+   <link type="text/css" rel="stylesheet" href="estiloLogin.css">  
 </head>
 
 <body>
+
     <div id="app">
+        
 
-        <!-- Header Improvisado -->
-        <div class="card text-white bg-dark mb-3">
-            <div class="card-body header">
-                <p class="h1 mb-4">SABRE - BETA</p>
+        <nav class="navbar navbar-light bg-dark mb-3">
+          <a class="navbar-brand h1 mb-4 text-white ">SABRE- BETA</a>
+        </nav>
+
+
+        <div class="wrapper fadeInDown">
+            <div id="formContent" v-if="this.showLogin">
+
+              <!-- Icon -->
+              <div class="fadeIn first" >
+                <img src="dado-remove.png" id="icon" alt="User Icon" />
+              </div>
+          
+              <!-- Login Form -->
+              <form @submit.prevent="login()">
+                <input type="text" id="login" class="fadeIn second" name="login" placeholder="username" v-model="user.username">
+                <input type="password" id="password" class="fadeIn third" name="login" placeholder="password" v-model="user.password">
+                <input type="submit" class="fadeIn fourth" value="Log In">
+              </form>
+          
             </div>
-        </div>
+          </div>
 
-        <!-- Cadastro de nomes -->
+        <!-- TO DO -->
+        <!-- If true show registered names -->
+        <div class="escondidim" v-if='this.tabela'>
         <div class=" form-inline justify-content-center">
-            <form class=" form text-center border border-light p-5 bg-dark text-white" @submit.prevent='send()'>
+            <form class=" form text-center border border-light p-5 bg-dark text-white" @submit.prevent='registerTableTopName()'>
+                <h2>{{ nome }} </h2>
 
-                <p class="h2 mb-4">Cadastre seu nome</p>
+                <p class="h2 mb-4">Cadastre um nome de ferramenta</p>
 
                 <p class="h3 mb-4">{{ mensagem }}</p>
 
                 <!-- Nome -->
-                <input type="text" id="defaultContactFormName" class="form-control mb-4" v-model='usuario.nome'
-                    placeholder="Nome">
+                <input type="text" id="defaultContactFormName" class="form-control mb-4" 
+                    placeholder="Nome" v-model="nome">
 
-                <!-- Email -->
-                <input type="email" id="defaultContactFormEmail" class="form-control mb-4" v-model='email'
-                    placeholder="Email">
+
 
                 <!-- Rpg -->
                 <label>Plataforma preferida</label>
                 <select class="browser-default custom-select mb-4">
                     <option value="" disabled>Escolha</option>
-                    <option value="1" selected>D&D</option>
-                    <option value="2">Vampiro: A Máscara</option>
-                    <option value="3">Tormenta</option>
-                    <option value="4">Demônio: A queda</option>
                 </select>
 
                 <button class="btn btn-block btn-secondary btn btn-outline-light" type="submit">Cadastrar</button>
 
             </form>
- 
 
-        </div>
-
-        <!-- Se tabela for verdadeiro exibe os nomes cadastrados -->
-        <div class="escondidim" v-if='this.tabela'>
-
+          </div>
+          
+          <br>
+          <br>
 
             <table class="table table-striped table-dark ">
                 <thead>
                     <tr>
 
                         <th scope="col">Nomes cadastrados</th>
-                        <th scope="col">Plataforma Principal</th>
-                        <th scope="col">Email</th>
+                        
+                        
                     </tr>
                 </thead>
                 <tbody v-for="nome in nomes" :key="nome.id">
                     <tr>
 
                         <td>{{ nome.name }}</td>
-                        <td> Vampiro: A Máscara</td>
-                        <td> sambadilovime69@gmaiul.com</td>
+                        
+                        
                     </tr>
                 </tbody>
             </table>
@@ -78,51 +94,74 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
 
-        // endpoint para buscar e cadastrar os nomes 
-        const url = "http://powerpush.com.br/sabre/api.dev/v1/sugestao";
+        // endpoint for name search
+        const urlSugestao = "http://powerpush.com.br/sabre/api.dev/v1/sugestao";
+        const urlLogin = "http://powerpush.com.br/sabre/api.dev/v1/user/login";
 
         var app = new Vue({
             el: '#app',
             tabela: false,
             data: {
-                usuario: {
-                    nome: 'Nome'
+                user: {
+                    username: '',
+                    password: ''
                 },
-                email: 'Email',
                 nomes: [{
                     id: '',
                     name: ''
                 }],
-                mensagem: ''
+                nome:'',
+                mensagem: '',
+                showLogin: true,
+                idUser:''
+
+
+ 
             },
             mounted() {
-                //chama a lista de nomes assim que o componente é criado
-                this.conexao()
+                //call for the connection method as the vue get mounted
+                this.fetchRegisteredNames()
+                
             },
             methods: {
-                send() {
+
+                //register a table top name sugestion
+                registerTableTopName() {
                     this.tabela = true
-                    //Verifica se o nome já está cadastrado, se não estiver sugere um nome cadastrável
-                    if (this.nomes.some(nomes => nomes.name.toUpperCase() === this.usuario.nome.toUpperCase())) {
-                        this.mensagem = `Este nome de usuário já está sendo utilizado, que tal ${this.usuario.nome}69?`
-                        this.usuario.nome = this.usuario.nome+'69'
-                    } else {
-                        this.mensagem = 'Nome liberado para cadastro'
-                        axios.post(url, this.usuario)
-                            .then(() => {
+                        axios.post(urlSugestao, this.nome)
+                            .then((res) => {
+                                console.log(this.nome)
+                                console.log(res);
+                                this.mensagem = res.data.message,
                                 this.usuario.nome = '',
-                                    this.email = ''
+                                this.email = ''
                                 this.conexao()
+                            }).catch(err =>{
+                                console.log(err);
                             })
-                    }
+                    
 
                 },
-                conexao() {
-                    // busca os nomes
-                    axios.get(url).then(res => {
+                //fetch names from DB
+                fetchRegisteredNames() {
+                    axios.get(urlSugestao).then(res => {
                         this.nomes = res.data.suggestions
 
                     })
+                },
+
+                login(){
+                  axios.put(urlLogin, this.user)
+                  .then((res) => {
+                    console.log(this.nome) 
+                    this.idUser = res.data.user.id;
+                    this.tabela = true;
+                    this.showLogin = false
+                    console.log(this.idUser)
+                  })
+                  .catch((err) =>console.log(err))
+
+
                 }
             }
 
@@ -130,7 +169,7 @@
     </script>
 
 </body>
-
+</html>
 <style>
 
     tr {
@@ -161,4 +200,39 @@
         margin: auto;
         width: 50% !important;
     }
+
+
+    * BASIC */
+
+html {
+  background-color: #56baed;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  height: 100vh;
+}
+
+a {
+  color: #92badd;
+  display:inline-block;
+  text-decoration: none;
+  font-weight: 400;
+}
+
+h2 {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  display:inline-block;
+  margin: 40px 8px 10px 8px; 
+  color: #cccccc;
+}
+
+
+
+
+
+
 </style>
