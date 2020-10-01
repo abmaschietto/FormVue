@@ -40,7 +40,7 @@
         <div class="escondidim" v-if='this.tabela'>
         <div class=" form-inline justify-content-center">
             <form class=" form text-center border border-light p-5 bg-dark text-white" @submit.prevent='registerTableTopName()'>
-                <h2>{{ nome }} </h2>
+               
 
                 <p class="h2 mb-4">Cadastre um nome de ferramenta</p>
 
@@ -48,7 +48,7 @@
 
                 <!-- Nome -->
                 <input type="text" id="defaultContactFormName" class="form-control mb-4" 
-                    placeholder="Nome" v-model="nome">
+                    placeholder="Nome" v-model="sugestao.nome">
 
 
 
@@ -74,12 +74,13 @@
                         <th scope="col">Nomes cadastrados</th>
                         
                         
+                        
                     </tr>
                 </thead>
                 <tbody v-for="nome in nomes" :key="nome.id">
                     <tr>
 
-                        <td>{{ nome.name }}</td>
+                        <td class="nome" @click.prevent="vote(nome.id)">{{ nome.name }}</td>
                         
                         
                     </tr>
@@ -104,16 +105,23 @@
             data: {
                 user: {
                     username: '',
-                    password: ''
+                    password: '',
+                    id:''
                 },
                 nomes: [{
                     id: '',
                     name: ''
                 }],
-                nome:'',
+                sugestao:{
+                    nome:''
+                },
                 mensagem: '',
                 showLogin: true,
-                idUser:''
+                idUser:'',
+                send:{
+                    sugestionId:'',
+                    userId:''
+                }
 
 
  
@@ -128,14 +136,11 @@
                 //register a table top name sugestion
                 registerTableTopName() {
                     this.tabela = true
-                        axios.post(urlSugestao, this.nome)
+                        axios.post(urlSugestao, this.sugestao)
                             .then((res) => {
-                                console.log(this.nome)
                                 console.log(res);
-                                this.mensagem = res.data.message,
-                                this.usuario.nome = '',
-                                this.email = ''
-                                this.conexao()
+                                this.mensagem = res.data.message
+                                this.fetchRegisteredNames()
                             }).catch(err =>{
                                 console.log(err);
                             })
@@ -153,16 +158,25 @@
                 login(){
                   axios.put(urlLogin, this.user)
                   .then((res) => {
-                    console.log(this.nome) 
+                    this.user.id = res.data.user.id;
                     this.idUser = res.data.user.id;
                     this.tabela = true;
                     this.showLogin = false
                     console.log(this.idUser)
                   })
                   .catch((err) =>console.log(err))
-
-
+                },
+                vote(id){
+                    this.send.sugestionId = id;
+                    this.send.userId = this.user.id;
+                    console.log(`Id da sugestão ${this.send.sugestionId} e id do user ${this.send.userId}`)
+                    axios.put(urlSugestao, this.send).then(res =>{
+                        console.log(res.data)
+                    }).catch(err =>{
+                        console.log(err)
+                    })
                 }
+
             }
 
         })
