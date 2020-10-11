@@ -52,12 +52,6 @@
 
 
 
-                <!-- Rpg -->
-                <label>Plataforma preferida</label>
-                <select class="browser-default custom-select mb-4">
-                    <option value="" disabled>Escolha</option>
-                </select>
-
                 <button class="btn btn-block btn-secondary btn btn-outline-light" type="submit">Cadastrar</button>
 
             </form>
@@ -71,7 +65,12 @@
                 <thead>
                     <tr>
 
-                        <th scope="col">Nomes cadastrados</th>
+                        <p h2 class="resposta">
+                            {{resposta}}
+                        </p>
+                        <br><br>
+                        <th scope="col">Nomes cadastrados </th>
+
                         
                         
                         
@@ -80,7 +79,7 @@
                 <tbody v-for="nome in nomes" :key="nome.id">
                     <tr>
 
-                        <td class="nome" @click.prevent="vote(nome.id)">{{ nome.name }}</td>
+                        <td class="nome" @click.prevent="vote(nome.id, nome.name)">{{ nome.name }}</td>
                         
                         
                     </tr>
@@ -103,6 +102,7 @@
             el: '#app',
             tabela: false,
             data: {
+                resposta: '',
                 user: {
                     username: '',
                     password: '',
@@ -166,16 +166,19 @@
                   })
                   .catch((err) =>console.log(err))
                 },
-                vote(id){
+                vote(id, name){
                     this.send.sugestionId = id;
                     this.send.userId = this.user.id;
                     console.log(`Id da sugestão ${this.send.sugestionId} e id do user ${this.send.userId}`)
                     axios.put(urlSugestao, this.send).then(res =>{
                         console.log(res.data)
+                        this.resposta = 'Você fotou na sugestão ' + name + '. '  + res.data.message 
                     }).catch(err =>{
+
                         console.log(err)
                     })
                 }
+
 
             }
 
@@ -244,9 +247,11 @@ h2 {
   color: #cccccc;
 }
 
-
-
-
+.resposta{
+    text-align: center;
+    background-color: red;
+    font-size: xx-large;
+}
 
 
 </style>
